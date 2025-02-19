@@ -17,7 +17,7 @@ EmissionsEye is a comprehensive web-based platform designed to empower individua
 3.	**Badges and Achievements:**
 -	Based on their carbon footprint, users are assigned badges as a recognition of their efforts.
 -	Badges serve as motivation and encouragement for users to continue reducing their carbon emissions.
--	
+  
 4. **Educational Content:**
 -	The platform offers a wealth of educational content on how to reduce carbon footprints.
 -	Tips, articles, and resources help users adopt sustainable habits and make environmentally conscious decisions.
