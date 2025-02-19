@@ -5,11 +5,11 @@ EmissionsEye is a comprehensive web-based platform designed to empower individua
 
 ## Features
 1.	**User Accounts and Profiles:**
--	Users can create personalized accounts with a unique       profile section.
+-	Users can create personalized accounts with a unique profile section.
 -	The profile section includes an overview and history.
 - Users can view their past carbon footprint data and track their progress over time.
 
-    2.	**Carbon Footprint Tracking:**
+2.	**Carbon Footprint Tracking:**
 -	Users input their daily activities, and the system calculates their carbon footprint every 15 days.
 -	Results are displayed in an easy-to-understand format and stored in a database for historical tracking.
 -	Graphs illustrate the relationship between time and carbon footprint, helping users visualize their environmental impact.
@@ -17,6 +17,7 @@ EmissionsEye is a comprehensive web-based platform designed to empower individua
 3.	**Badges and Achievements:**
 -	Based on their carbon footprint, users are assigned badges as a recognition of their efforts.
 -	Badges serve as motivation and encouragement for users to continue reducing their carbon emissions.
+-	
 4. **Educational Content:**
 -	The platform offers a wealth of educational content on how to reduce carbon footprints.
 -	Tips, articles, and resources help users adopt sustainable habits and make environmentally conscious decisions.
