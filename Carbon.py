@@ -1,6 +1,27 @@
-name = input("Enter your name:\n")
-email = input("Enter your email:\n")
-mob = input("Enter your mobile number:\n")
+def checktable(table):     #to check if the table exists already
+    sqr.execute(f"show tables like '{table}'")
+    result = sqr.fetchone()
+    if result:
+        return True
+    else:
+        return False
+
+import mysql.connector          #setup connection
+mycon = mysql.connector.connect(host = "localhost",user="root",passwd="9617",database="emissionseye")
+sqr = mycon.cursor()
+
+if(checktable("profile")):
+    print("User detials found!\n")
+else:
+    name = input("Enter your name:\n")
+    email = input("Enter your email:\n")
+    mob = input("Enter your mobile number:\n")
+    str1 = "create table profile(Name varchar(30),Email varchar(30), Mobile varchar(10));"
+    sqr.execute(str1)
+    str2 = f"insert into profile values('{name}','{email}','{mob}');"
+    sqr.execute(str2)
+    mycon.commit()
+
 usage = [0,0,0,0,0,0,0,0,0,0,0,0] 
 while(True):
     choice1 = int(input("1.Transportation\n2.Energy Usage\n3.Purchases & Waste\n4.Offsets & Reduction\n5.Submit\n"))
@@ -86,5 +107,28 @@ while(True):
         total = 0
         for i in usage:
             total = total+i
+        total = str(round(float(total),2))
+        print(f"{total}\n")
+        sqr.execute("select current_timestamp;")
+        timestamp = sqr.fetchone()
+        sqr.execute(f"create table `{timestamp[0]}`(Category varchar(20),Emission varchar(10));")
+        category = ["Car","Public Transport","Flight","Electricity","LPG","Heating (NG)","Clothing","Electronics","Plastic Waste","Food Waste","Tree Planting","Renewable Energy"]
+        str3 = f"insert into `{timestamp[0]}` values"
+        for i1 in range(0,12):
+            str3 = str3 + f"('{category[i1]}','{usage[i1]}')"
+            if(i1!=11):
+                str3 = str3 + ","
+            else:
+                str3 = str3 + ";"
+        sqr.execute(str3)
+        mycon.commit()
+        
+        if(checktable("history")):
+            print("Updating History\n")
+        else:
+            sqr.execute(f"create table History(Date_Time varchar(20),Total varchar(255));")
+        sqr.execute(f"insert into history values('{timestamp[0]}','{total}');")
+        mycon.commit()
+
         print(f"The total amount of Carbon Emissions by you is {total}\n")
         break
