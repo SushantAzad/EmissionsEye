@@ -7,7 +7,7 @@ def checktable(table):     #to check if the table exists already
         return False
 
 import mysql.connector          #setup connection
-mycon = mysql.connector.connect(host = "localhost",user="root",passwd="9617",database="emissionseye")
+mycon = mysql.connector.connect(host = "localhost",user="root",passwd="My!nst@_1136",database="emissionseye")
 sqr = mycon.cursor()
 
 if(checktable("profile")):
