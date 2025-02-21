@@ -10,20 +10,43 @@ import mysql.connector          #setup connection
 mycon = mysql.connector.connect(host = "localhost",user="root",passwd="9617",database="emissionseye")
 sqr = mycon.cursor()
 
+loggedIn = False
 if(checktable("profile")):
-    print("User detials found!\n")
+    choice0 = int(input("1.Login\n2.Create New Profile\n"))
+    if(choice0==1):
+        email = input("Enter your email:\n")
+        password = input("Enter your password:\n")
+        str0 = "select email, password from profile;"
+        sqr.execute(str0)
+        userdata = sqr.fetchall()
+        for i1 in userdata:
+            if (i1[0] == email) and (i1[1] == password):
+                loggedIn = True
+    elif(choice0 == 2):
+        name = input("Enter your name:\n")
+        email = input("Enter your email:\n")
+        mob = input("Enter your mobile number:\n")
+        password = input("Enter your password\n")
+        str2 = f"insert into profile values('{name}','{email}','{mob}','{password}');"
+        sqr.execute(str2)
+        mycon.commit()
+        loggedIn = True
+        print("User Profile created!\n")
 else:
     name = input("Enter your name:\n")
     email = input("Enter your email:\n")
     mob = input("Enter your mobile number:\n")
-    str1 = "create table profile(Name varchar(30),Email varchar(30), Mobile varchar(10));"
+    password = input("Enter your password\n")
+    str1 = "create table profile(Name varchar(30),Email varchar(30), Mobile varchar(10),Password varchar(50));"
     sqr.execute(str1)
-    str2 = f"insert into profile values('{name}','{email}','{mob}');"
+    str2 = f"insert into profile values('{name}','{email}','{mob}','{password}');"
     sqr.execute(str2)
     mycon.commit()
+    loggedIn = True
+    print("User Profile created!\n")
 
 usage = [0,0,0,0,0,0,0,0,0,0,0,0] 
-while(True):
+while(loggedIn):
     choice1 = int(input("1.Transportation\n2.Energy Usage\n3.Purchases & Waste\n4.Offsets & Reduction\n5.Submit\n"))
 
     if(choice1==1):
