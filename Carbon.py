@@ -11,6 +11,68 @@ mycon = mysql.connector.connect(host = "localhost",user="root",passwd="My!nst@_1
 sqr = mycon.cursor()
 
 loggedIn = False
+from flask import Flask, jsonify
+from flask_cors import CORS
+from flask import send_file
+
+app = Flask(__name__)
+CORS(app)        #Allow frontend to fetch API data
+
+# API Endpoint to Fetch History Data
+@app.route('/history', methods=['GET'])
+def get_history():
+    sqr.execute("SELECT Date_Time, Total FROM history")     #Fetch history data
+    data = sqr.fetchall()
+
+    #Convert fetched data into a JSON-friendly format
+    history_data = [{"date":row[0], "emission":float(row[1])} for row in data]
+
+    return jsonify(history_data)
+
+import matplotlib.pyplot as plt
+import io
+# API Endpoint to Generate and Return Graph
+@app.route('/history-graph', methods=['GET'])
+def get_history_graph():
+    # Fetch data
+    sqr.execute("SELECT Date_Time, Total FROM history")
+    data = sqr.fetchall()
+    
+    if not data:
+        return "No Data Available", 404
+
+    # Extract dates and emissions
+    dates = [row[0] for row in data]
+    emissions = [float(row[1]) for row in data]
+
+    # Create the plot
+    plt.figure(figsize=(10, 5))
+    plt.plot(dates, emissions, marker='o', linestyle='-', color='b', label="Emissions Over Time")
+    plt.xlabel("Date")
+    plt.ylabel("Carbon Emission (kg)")
+    plt.title("Carbon Emissions History")
+    plt.legend()
+    plt.xticks(rotation=45)
+    plt.grid()
+
+    # Save plot to a BytesIO object
+    img = io.BytesIO()
+    plt.savefig(img, format='png')
+    img.seek(0)
+
+    return send_file(img, mimetype='image/png')
+
+import sys
+
+if __name__ == "__main__":
+    if "runserver" in sys.argv:
+        app.run(debug=True)
+    else:
+        print("Running CLI Mode (Carbon Emission Calculator)")
+
+
+#-----------------------------------------------------
+
 if(checktable("profile")):
     choice0 = int(input("1.Login\n2.Create New Profile\n"))
     if(choice0==1):
