@@ -1,6 +1,7 @@
 *{
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
 .navbar{
@@ -8,46 +9,34 @@
     height: 6.9rem;
     font-size: 2.5rem;
     font-family: "Merriweather";
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 h1{
     padding-top: 1rem;
 }
 
+.mainbody {
+    display: flex;
+    flex-direction: row;
+    height: 87vh;
+}
+
 #leftpart{
     background-color: #1d2939;
-    height: 87vh;
     width: 20%;
+    padding-top: 2rem;
 }
 
 .menuoptions{
     font-size: 1.8rem;
     color: white;
-    padding-left: 1.4rem ;
+    padding-left: 1.4rem;
 }
 
-#one{
-    padding-top: 2.5rem;
-}
-
-#two{
-    padding-top: 2.5rem;
-    padding-left: 0.2rem;
-}
-
-#three{
-    padding-top: 2.5rem;
-}
-
-#four{
-    padding-top: 2.5rem;
-}
-
-#five{
-    padding-top: 2.5rem;
-}
-
-#six{
+.menuoptions div {
     padding-top: 2.5rem;
 }
 
@@ -58,27 +47,30 @@ h1{
 
 #rightpart{
     background-color: #fcfdff;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
 }
 
-#footer{
-    position: fixed;
-    bottom: 0px;
+#graph-container {
+    width: 80%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
-
 
 h2 {
     color: #333;
 }
 
-canvas {
-    max-width: 80%;
-    height: 400px;
-    margin: auto;
-    display: block;
-    background: white;
+img {
+    max-width: 100%;
+    padding: 5px;
+    height: auto;
     border-radius: 8px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
-
-
-/*Till here this is the css of website template.*/

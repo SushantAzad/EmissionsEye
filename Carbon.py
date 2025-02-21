@@ -1,96 +1,30 @@
-def checktable(table):     #to check if the table exists already
-    sqr.execute(f"show tables like '{table}'")
-    result = sqr.fetchone()
-    if result:
-        return True
-    else:
-        return False
+import mysql.connector
 
-import mysql.connector          #setup connection
-mycon = mysql.connector.connect(host = "localhost",user="root",passwd="My!nst@_1136",database="emissionseye")
+def checktable(table):     # Check if the table exists
+    sqr.execute(f"SHOW TABLES LIKE '{table}'")
+    return bool(sqr.fetchone())
+
+# Database Connection
+mycon = mysql.connector.connect(host="localhost", user="root", passwd="My!nst@_1136", database="emissionseye")
 sqr = mycon.cursor()
 
 loggedIn = False
-from flask import Flask, jsonify
-from flask_cors import CORS
-from flask import send_file
 
-app = Flask(__name__)
-CORS(app)        #Allow frontend to fetch API data
-
-# API Endpoint to Fetch History Data
-@app.route('/history', methods=['GET'])
-def get_history():
-    sqr.execute("SELECT Date_Time, Total FROM history")     #Fetch history data
-    data = sqr.fetchall()
-
-    #Convert fetched data into a JSON-friendly format
-    history_data = [{"date":row[0], "emission":float(row[1])} for row in data]
-
-    return jsonify(history_data)
-
-import matplotlib.pyplot as plt
-import io
-# API Endpoint to Generate and Return Graph
-@app.route('/history-graph', methods=['GET'])
-def get_history_graph():
-    # Fetch data
-    sqr.execute("SELECT Date_Time, Total FROM history")
-    data = sqr.fetchall()
-    
-    if not data:
-        return "No Data Available", 404
-
-    # Extract dates and emissions
-    dates = [row[0] for row in data]
-    emissions = [float(row[1]) for row in data]
-
-    # Create the plot
-    plt.figure(figsize=(10, 5))
-    plt.plot(dates, emissions, marker='o', linestyle='-', color='b', label="Emissions Over Time")
-    plt.xlabel("Date")
-    plt.ylabel("Carbon Emission (kg)")
-    plt.title("Carbon Emissions History")
-    plt.legend()
-    plt.xticks(rotation=45)
-    plt.grid()
-
-    # Save plot to a BytesIO object
-    img = io.BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-
-    return send_file(img, mimetype='image/png')
-
-import sys
-
-if __name__ == "__main__":
-    if "runserver" in sys.argv:
-        app.run(debug=True)
-    else:
-        print("Running CLI Mode (Carbon Emission Calculator)")
-
-
-#-----------------------------------------------------
-
-if(checktable("profile")):
-    choice0 = int(input("1.Login\n2.Create New Profile\n"))
-    if(choice0==1):
+if checktable("profile"):
+    choice0 = int(input("1. Login\n2. Create New Profile\n"))
+    if choice0 == 1:
         email = input("Enter your email:\n")
         password = input("Enter your password:\n")
-        str0 = "select email, password from profile;"
-        sqr.execute(str0)
-        userdata = sqr.fetchall()
-        for i1 in userdata:
-            if (i1[0] == email) and (i1[1] == password):
+        sqr.execute("SELECT email, password FROM profile;")
+        for row in sqr.fetchall():
+            if row[0] == email and row[1] == password:
                 loggedIn = True
-    elif(choice0 == 2):
+    elif choice0 == 2:
         name = input("Enter your name:\n")
         email = input("Enter your email:\n")
         mob = input("Enter your mobile number:\n")
-        password = input("Enter your password\n")
-        str2 = f"insert into profile values('{name}','{email}','{mob}','{password}');"
-        sqr.execute(str2)
+        password = input("Enter your password:\n")
+        sqr.execute(f"INSERT INTO profile VALUES('{name}','{email}','{mob}','{password}');")
         mycon.commit()
         loggedIn = True
         print("User Profile created!\n")
@@ -98,122 +32,81 @@ else:
     name = input("Enter your name:\n")
     email = input("Enter your email:\n")
     mob = input("Enter your mobile number:\n")
-    password = input("Enter your password\n")
-    str1 = "create table profile(Name varchar(30),Email varchar(30), Mobile varchar(10),Password varchar(50));"
-    sqr.execute(str1)
-    str2 = f"insert into profile values('{name}','{email}','{mob}','{password}');"
-    sqr.execute(str2)
+    password = input("Enter your password:\n")
+    sqr.execute("CREATE TABLE profile(Name VARCHAR(30), Email VARCHAR(30), Mobile VARCHAR(10), Password VARCHAR(50));")
+    sqr.execute(f"INSERT INTO profile VALUES('{name}','{email}','{mob}','{password}');")
     mycon.commit()
     loggedIn = True
     print("User Profile created!\n")
 
-usage = [0,0,0,0,0,0,0,0,0,0,0,0] 
-while(loggedIn):
-    choice1 = int(input("1.Transportation\n2.Energy Usage\n3.Purchases & Waste\n4.Offsets & Reduction\n5.Submit\n"))
+usage = [0] * 12
+while loggedIn:
+    choice1 = int(input("1. Transportation\n2. Energy Usage\n3. Purchases & Waste\n4. Offsets & Reduction\n5. Submit\n"))
 
-    if(choice1==1):
-        while(choice1==1):
-            choice2 = int(input("1.Car\n2.Public Transport\n3.Flight\n4.NextCat\n"))
-            if(choice2 == 1):
-                choice3 = int(input("1.Petrol\n2.Deisel\n3.EV\n"))
+    if choice1 == 1:
+        while choice1 == 1:
+            choice2 = int(input("1. Car\n2. Public Transport\n3. Flight\n4. Next Category\n"))
+            if choice2 == 1:
+                choice3 = int(input("1. Petrol\n2. Diesel\n3. EV\n"))
                 carDistance = int(input("Enter distance travelled by Car:\n"))
-                if(choice3 == 1):
-                    usage[0] = carDistance*0.20
-                elif(choice3 == 2):
-                    usage[0] = carDistance*0.25
-                elif(choice3 == 3):
-                    usage[0] = carDistance*0.05
-            elif(choice2==2):
-                choice4 = int(input("1.Bus\n2.Train\n3.Metro\n"))
+                factors = [0.20, 0.25, 0.05]
+                usage[0] = carDistance * factors[choice3 - 1]
+            elif choice2 == 2:
+                choice4 = int(input("1. Bus\n2. Train\n3. Metro\n"))
                 pubDistance = int(input("Enter distance travelled by Public Transport:\n"))
-                if(choice4 == 1):
-                    usage[1] = pubDistance*0.07
-                elif(choice4 == 2):
-                    usage[1] = pubDistance*0.05
-                elif(choice4 == 3):
-                    usage[1] = pubDistance*0.04
-            elif(choice2==3):
-                choice5 = int(input("1.Short haul\n2.Long haul\n"))
+                factors = [0.07, 0.05, 0.04]
+                usage[1] = pubDistance * factors[choice4 - 1]
+            elif choice2 == 3:
+                choice5 = int(input("1. Short haul\n2. Long haul\n"))
                 noOfFlights = int(input("Enter no. of flights taken:\n"))
-                if(choice5==1):
-                    usage[2] = noOfFlights*250
-                elif(choice5==2):
-                    usage[2] = noOfFlights*1000
-            elif(choice2==4):
+                factors = [250, 1000]
+                usage[2] = noOfFlights * factors[choice5 - 1]
+            elif choice2 == 4:
                 choice1 = 2
-    
-    elif(choice1==2):
-        while(choice1==2):
-            choice6 = int(input("1.Electricity Consumption\n2.LPG Usage\n3.Heating (Natural Gas)\n4.NextCat\n"))
-            if(choice6==1):
-                kwh = int(input("Enter the No. of kWh electricity used:\n"))
-                usage[3] = kwh*0.5
-            elif(choice6==2):
-                lpg = int(input("Enter the amount of LPG used (in kg):\n"))
-                usage[4] = lpg*2.98
-            elif(choice6==3):
-                gas = int(input("Enter the amount of Natural Gas used (in m^3):\n"))
-                usage[5] = gas*1.85
-            elif(choice6==4):
-                choice1 = 3  
 
-    elif(choice1==3):
-        while(choice1==3):
-            choice7 = int(input("1.Clothing\n2.Electronics\n3.Plastic Waste\n4.Food WAste\n5.NextCat\n"))
-            if(choice7==1):
-                noOfClothes = int(input("Enter the No. of clothing items:\n"))
-                usage[6] = noOfClothes*50
-            elif(choice7==2):
-                noOfMobiles = int(input("Enter the no. of Mobiles:\n"))
-                noOfLaptops = int(input("Enter the no. of Laptops:\n"))
-                usage[7] = noOfMobiles*70 + noOfLaptops*200
-            elif(choice7==3):
-                plasticWaste = int(input("Enter the amount of plastic waste (in kg):\n"))
-                usage[8] = plasticWaste*2.5
-            elif(choice7==4):
-                foodWaste  = int(input("Enter the amount of food waste (in kg):\n"))
-                usage[9] = foodWaste*0.9
-            elif(choice7==5):
+    elif choice1 == 2:
+        while choice1 == 2:
+            choice6 = int(input("1. Electricity Consumption\n2. LPG Usage\n3. Heating (Natural Gas)\n4. Next Category\n"))
+            values = [0.5, 2.98, 1.85]
+            input_values = [int(input(f"Enter the amount (in appropriate units) for {item}:\n")) for item in ["Electricity (kWh)", "LPG (kg)", "Natural Gas (m^3)"]]
+            usage[3:6] = [input_values[i] * values[i] for i in range(3)]
+            if choice6 == 4:
+                choice1 = 3
+
+    elif choice1 == 3:
+        while choice1 == 3:
+            choice7 = int(input("1. Clothing\n2. Electronics\n3. Plastic Waste\n4. Food Waste\n5. Next Category\n"))
+            values = [50, 70, 200, 2.5, 0.9]
+            if choice7 == 1:
+                usage[6] = int(input("Enter the No. of clothing items:\n")) * values[0]
+            elif choice7 == 2:
+                mobiles = int(input("Enter the no. of Mobiles:\n"))
+                laptops = int(input("Enter the no. of Laptops:\n"))
+                usage[7] = mobiles * values[1] + laptops * values[2]
+            elif choice7 == 3:
+                usage[8] = int(input("Enter the amount of plastic waste (in kg):\n")) * values[3]
+            elif choice7 == 4:
+                usage[9] = int(input("Enter the amount of food waste (in kg):\n")) * values[4]
+            elif choice7 == 5:
                 choice1 = 4
 
-    elif(choice1==4):
-        while(choice1==4):  
-            choice8 = int(input("1.Tree Planting\n2.Renewable Energy\n3.NextCat\n"))
-            if(choice8==1):
-                noOfTrees = int(input("Enter the no. of trees you planted:\n"))
-                usage[10]  =  noOfTrees*(-20)
-            elif(choice8==2):
-                kwh2 = int(input("Enter the no. of kWh renewable energy generated:\n"))
-                usage[11]  =  kwh2*(-0.5)
-            elif(choice8==3):
-                choice1=5
-    
-    elif(choice1==5):
-        total = 0
-        for i in usage:
-            total = total+i
-        total = str(round(float(total),2))
-        print(f"{total}\n")
-        sqr.execute("select current_timestamp;")
-        timestamp = sqr.fetchone()
-        sqr.execute(f"create table `{timestamp[0]}`(Category varchar(20),Emission varchar(10));")
-        category = ["Car","Public Transport","Flight","Electricity","LPG","Heating (NG)","Clothing","Electronics","Plastic Waste","Food Waste","Tree Planting","Renewable Energy"]
-        str3 = f"insert into `{timestamp[0]}` values"
-        for i1 in range(0,12):
-            str3 = str3 + f"('{category[i1]}','{usage[i1]}')"
-            if(i1!=11):
-                str3 = str3 + ","
-            else:
-                str3 = str3 + ";"
-        sqr.execute(str3)
-        mycon.commit()
-        
-        if(checktable("history")):
-            print("Updating History\n")
-        else:
-            sqr.execute(f"create table History(Date_Time varchar(20),Total varchar(255));")
-        sqr.execute(f"insert into history values('{timestamp[0]}','{total}');")
-        mycon.commit()
+    elif choice1 == 4:
+        while choice1 == 4:
+            choice8 = int(input("1. Tree Planting\n2. Renewable Energy\n3. Next Category\n"))
+            values = [-20, -0.5]
+            if choice8 == 1:
+                usage[10] = int(input("Enter the no. of trees you planted:\n")) * values[0]
+            elif choice8 == 2:
+                usage[11] = int(input("Enter the no. of kWh renewable energy generated:\n")) * values[1]
+            elif choice8 == 3:
+                choice1 = 5
 
-        print(f"The total amount of Carbon Emissions by you is {total}\n")
+    elif choice1 == 5:
+        total = round(sum(usage), 2)
+        print(f"Total Carbon Emissions: {total} kg\n")
+        sqr.execute("SELECT CURRENT_TIMESTAMP;")
+        timestamp = sqr.fetchone()[0]
+        sqr.execute("INSERT INTO history (Date_Time, Total) VALUES (%s, %s)", (timestamp, total))
+        mycon.commit()
+        print("Data saved successfully!\n")
         break
