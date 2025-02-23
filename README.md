@@ -72,3 +72,5 @@ Join us on our mission towards a greener, more sustainable future! 🌿
 
 ## Demo Link 👇
 https://drive.google.com/file/d/1Jx0Zp1DJ7aoq-4Rwch5FJUV2IpVt0KC6/view?usp=sharing
+
+### Badges will be allocated on a relative basis. They will only be displayed when there are more than five users on the server. Additionally, the history graph will become visible after a user has calculated their carbon emissions at least three times.
